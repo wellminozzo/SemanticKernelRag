@@ -1,6 +1,10 @@
 @SemanticKernelRag.Api_HostAddress = http://localhost:5137
 
-GET {{SemanticKernelRag.Api_HostAddress}}/weatherforecast/
+POST {{SemanticKernelRag.Api_HostAddress}}/api/chat
 Accept: application/json
+
+{
+    "message": "Meu nome é Wellerson. Trabalho como desenvolvedor de software."
+}
 
 ###

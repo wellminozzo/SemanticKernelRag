@@ -1,9 +1,11 @@
+using SemanticKernelRag.Application.DTOs;
+
 namespace SemanticKernelRag.Application.Services;
 
 public interface IChatService
 {
-    Task<string> SendMessageAsync(
-        string message,
+    Task<ChatResponse> SendMessageAsync(
+        ChatRequest request,
         CancellationToken cancellationToken = default
     );
 }

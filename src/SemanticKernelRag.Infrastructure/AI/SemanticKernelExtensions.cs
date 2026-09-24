@@ -31,9 +31,14 @@ public static class SemanticKernelExtensions
 
         var kernel = kernelBuilder.Build();
 
+        //Singleton - Uma única instância durante toda a vida da aplicação. Para caches, configurações e serviços thread-safe.
         services.AddSingleton(kernel);
+        services.AddSingleton<ChatHistoryStore>();
 
+        //Scoped - Uma instância por requisição HTTP. Padrão para repositórios e DbContext — garante consistência dentro de um request.
         services.AddScoped<IChatService, ChatService>();
+
+        //Transient - Nova instância a cada injeção. Ideal para serviços leves, stateless e sem estado compartilhado entre chamadas.
 
         return services;
     }

@@ -1,5 +1,7 @@
+using System.Net.Cache;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using SemanticKernelRag.Application.DTOs;
 using SemanticKernelRag.Application.Services;
 
 namespace SemanticKernelRag.Infrastructure.AI;
@@ -8,42 +10,44 @@ public class ChatService : IChatService
 {
     private readonly IChatCompletionService _chatCompletionService;
 
-    private readonly ChatHistory _history = new();
+    private readonly ChatHistoryStore _historyStore;
 
 
-    public ChatService(Kernel kernel)
+    public ChatService(Kernel kernel, ChatHistoryStore historyStore)
     {
-        _chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+       _chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
 
-        _history.AddSystemMessage(
-            """
-            Você é um assistente empresarial,
-
-            Responda de forma clara, objetiva e em português.
-
-            Quando não souber uma informação, informe que não possui
-            dados o suficiente para responder.
-
-            Não invente informações.
-            """
-        );
+       _historyStore = historyStore;
     }
 
-    public async Task<string> SendMessageAsync(
-        string message,
+    public async Task<ChatResponse> SendMessageAsync(
+        ChatRequest request,
         CancellationToken cancellationToken = default)
     {
+        var conversationId =
+            string.IsNullOrWhiteSpace(request.ConversationId)
+                ? Guid.NewGuid().ToString()
+                : request.ConversationId;
 
-        _history.AddUserMessage(message);
-        var response = await _chatCompletionService.GetChatMessageContentAsync(
-            _history,
-            cancellationToken: cancellationToken
-        );
+        var history =
+            _historyStore.GetOrCreate(conversationId);
 
-        var content = response.Content ?? string.Empty;
+        history.AddUserMessage(request.Message);
 
-        _history.AddAssistantMessage(content);
+        var response =
+            await _chatCompletionService.GetChatMessageContentAsync(
+                history,
+                cancellationToken: cancellationToken);
 
-        return content;
+        var content =
+            response.Content ?? string.Empty;
+
+        history.AddAssistantMessage(content);
+
+        return new ChatResponse
+        {
+            ConversationId = conversationId,
+            Message = content
+        };
     }
 }
