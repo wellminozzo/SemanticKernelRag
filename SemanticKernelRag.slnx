@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SemanticKernelRag.Api/SemanticKernelRag.Api.csproj" />
+    <Project Path="src/SemanticKernelRag.Application/SemanticKernelRag.Application.csproj" />
+    <Project Path="src/SemanticKernelRag.Domain/SemanticKernelRag.Domain.csproj" />
+    <Project Path="src/SemanticKernelRag.Infrastructure/SemanticKernelRag.Infrastructure.csproj" />
+  </Folder>
+</Solution>
