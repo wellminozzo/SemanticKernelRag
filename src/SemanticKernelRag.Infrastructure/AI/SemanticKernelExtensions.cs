@@ -37,6 +37,7 @@ public static class SemanticKernelExtensions
 
         //Scoped - Uma instância por requisição HTTP. Padrão para repositórios e DbContext — garante consistência dentro de um request.
         services.AddScoped<IChatService, ChatService>();
+        services.AddScoped<IFaturaService, FaturaService>();
 
         //Transient - Nova instância a cada injeção. Ideal para serviços leves, stateless e sem estado compartilhado entre chamadas.
 

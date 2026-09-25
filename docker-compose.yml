@@ -1,0 +1,22 @@
+services:
+
+  mysql:
+    image: mysql:8.4
+    container_name: semantic-kernel-mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: semantic_kernel_rag
+      MYSQL_USER: semantic
+      MYSQL_PASSWORD: semantic123
+
+    ports:
+      - "3308:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
