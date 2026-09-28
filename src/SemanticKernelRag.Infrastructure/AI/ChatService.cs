@@ -1,23 +1,29 @@
 using System.Net.Cache;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.Ollama;
 using SemanticKernelRag.Application.DTOs;
 using SemanticKernelRag.Application.Services;
+using SemanticKernelRag.Infrastructure.AI.Plugins;
 
 namespace SemanticKernelRag.Infrastructure.AI;
 
 public class ChatService : IChatService
 {
     private readonly IChatCompletionService _chatCompletionService;
-
     private readonly ChatHistoryStore _historyStore;
+    private readonly Kernel _kernel;
+    private readonly FinanceiroPlugin _financeiroPlugin;
 
-
-    public ChatService(Kernel kernel, ChatHistoryStore historyStore)
+    public ChatService(Kernel kernel, ChatHistoryStore historyStore, FinanceiroPlugin financeiroPlugin)
     {
+        _kernel = kernel;
+
        _chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
 
        _historyStore = historyStore;
+
+       _financeiroPlugin = financeiroPlugin;
     }
 
     public async Task<ChatResponse> SendMessageAsync(
@@ -34,10 +40,28 @@ public class ChatService : IChatService
 
         history.AddUserMessage(request.Message);
 
+        var kernel = _kernel.Clone();
+
+        kernel.Plugins.AddFromObject(_financeiroPlugin, "Financeiro");   
+
+        var executionSettings = new OllamaPromptExecutionSettings
+        {
+            FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(
+                options: new FunctionChoiceBehaviorOptions
+                {
+                    AllowConcurrentInvocation = false,
+                    AllowParallelCalls = false
+                }
+            )
+        }; 
+
+
         var response =
             await _chatCompletionService.GetChatMessageContentAsync(
                 history,
-                cancellationToken: cancellationToken);
+                executionSettings,
+                kernel,
+                cancellationToken);
 
         var content =
             response.Content ?? string.Empty;

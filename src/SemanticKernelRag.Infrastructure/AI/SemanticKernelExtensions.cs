@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using SemanticKernelRag.Application.Services;
+using SemanticKernelRag.Infrastructure.AI.Plugins;
 
 namespace SemanticKernelRag.Infrastructure.AI;
 
@@ -15,6 +16,8 @@ public static class SemanticKernelExtensions
             configuration["Ollama:ModelId"]
             ?? "phi3:mini";
 
+            
+
         var endpoint =
             configuration["Ollama:Endpoint"]
             ?? "http://localhost:11434";
@@ -23,9 +26,15 @@ public static class SemanticKernelExtensions
 
 #pragma warning disable SKEXP0070
 
+        var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(endpoint),
+                Timeout = TimeSpan.FromMinutes(5)
+            };
+            
         kernelBuilder.AddOllamaChatCompletion(
             modelId: modelId,
-            endpoint: new Uri(endpoint));
+            httpClient: httpClient);
 
 #pragma warning restore SKEXP0070
 
@@ -38,6 +47,7 @@ public static class SemanticKernelExtensions
         //Scoped - Uma instância por requisição HTTP. Padrão para repositórios e DbContext — garante consistência dentro de um request.
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IFaturaService, FaturaService>();
+        services.AddScoped<FinanceiroPlugin>();
 
         //Transient - Nova instância a cada injeção. Ideal para serviços leves, stateless e sem estado compartilhado entre chamadas.
 

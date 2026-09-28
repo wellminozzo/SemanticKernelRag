@@ -28,6 +28,7 @@ public class ChatHistoryStore
             - Seja claro, direto e objetivo.
             - Responda somente ao que foi perguntado.
             - Não ofereça serviços, oportunidades ou sugestões que não foram solicitadas.
+            - Não faça perguntas adicionais ao final da resposta.
             - Não invente informações.
             - Quando não possuir informações suficientes, diga claramente que não possui dados suficientes.
             - Utilize apenas informações fornecidas na conversa ou recuperadas pelas ferramentas disponíveis.
